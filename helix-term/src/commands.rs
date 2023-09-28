@@ -5161,13 +5161,22 @@ fn select_textobject(cx: &mut Context, objtype: textobject::TextObject) {
                         'T' => textobject_treesitter("test", range),
                         'p' => textobject::textobject_paragraph(text, range, objtype, count),
                         'm' => textobject::textobject_pair_surround_closest(
-                            text, range, objtype, count,
+                            doc.syntax(),
+                            text,
+                            range,
+                            objtype,
+                            count,
                         ),
                         'g' => textobject_change(range),
                         // TODO: cancel new ranges if inconsistent surround matches across lines
-                        ch if !ch.is_ascii_alphanumeric() => {
-                            textobject::textobject_pair_surround(text, range, objtype, ch, count)
-                        }
+                        ch if !ch.is_ascii_alphanumeric() => textobject::textobject_pair_surround(
+                            doc.syntax(),
+                            text,
+                            range,
+                            objtype,
+                            ch,
+                            count,
+                        ),
                         _ => range,
                     }
                 });
@@ -5255,13 +5264,14 @@ fn surround_replace(cx: &mut Context) {
         let text = doc.text().slice(..);
         let selection = doc.selection(view.id);
 
-        let change_pos = match surround::get_surround_pos(text, selection, surround_ch, count) {
-            Ok(c) => c,
-            Err(err) => {
-                cx.editor.set_error(err.to_string());
-                return;
-            }
-        };
+        let change_pos =
+            match surround::get_surround_pos(doc.syntax(), text, selection, surround_ch, count) {
+                Ok(c) => c,
+                Err(err) => {
+                    cx.editor.set_error(err.to_string());
+                    return;
+                }
+            };
 
         let selection = selection.clone();
         let ranges: SmallVec<[Range; 1]> = change_pos.iter().map(|&p| Range::point(p)).collect();
@@ -5304,13 +5314,14 @@ fn surround_delete(cx: &mut Context) {
         let text = doc.text().slice(..);
         let selection = doc.selection(view.id);
 
-        let change_pos = match surround::get_surround_pos(text, selection, surround_ch, count) {
-            Ok(c) => c,
-            Err(err) => {
-                cx.editor.set_error(err.to_string());
-                return;
-            }
-        };
+        let change_pos =
+            match surround::get_surround_pos(doc.syntax(), text, selection, surround_ch, count) {
+                Ok(c) => c,
+                Err(err) => {
+                    cx.editor.set_error(err.to_string());
+                    return;
+                }
+            };
 
         let transaction =
             Transaction::change(doc.text(), change_pos.into_iter().map(|p| (p, p + 1, None)));

@@ -220,7 +220,7 @@ fn as_close_pair(doc: RopeSlice, node: &Node) -> Option<char> {
         .find_map(|&(open, close_)| (close_ == close).then_some(open))
 }
 
-/// Checks if `node` or its siblings (at most MATCH_LIMIT nodes) is the specified closing char
+/// Checks if `node` or its siblings (at most `MATCH_LIMIT` nodes) is the specified closing char
 ///
 /// # Returns
 ///
