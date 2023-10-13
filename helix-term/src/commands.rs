@@ -5200,7 +5200,7 @@ fn select_textobject(cx: &mut Context, objtype: textobject::TextObject) {
         ("a", "Argument/parameter (tree-sitter)"),
         ("c", "Comment (tree-sitter)"),
         ("T", "Test (tree-sitter)"),
-        ("m", "Closest surrounding pair"),
+        ("m", "Closest surrounding pair (tree-sitter)"),
         (" ", "... or any character acting as a pair"),
     ];
 
@@ -5213,7 +5213,7 @@ fn surround_add(cx: &mut Context) {
         // surround_len is the number of new characters being added.
         let (open, close, surround_len) = match event.char() {
             Some(ch) => {
-                let (o, c) = surround::get_pair(ch);
+                let (o, c) = match_brackets::get_pair(ch);
                 let mut open = Tendril::new();
                 open.push(o);
                 let mut close = Tendril::new();
@@ -5286,7 +5286,7 @@ fn surround_replace(cx: &mut Context) {
                 Some(to) => to,
                 None => return doc.set_selection(view.id, selection),
             };
-            let (open, close) = surround::get_pair(to);
+            let (open, close) = match_brackets::get_pair(to);
             let transaction = Transaction::change(
                 doc.text(),
                 change_pos.iter().enumerate().map(|(i, &pos)| {

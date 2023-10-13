@@ -2,21 +2,13 @@ use std::fmt::Display;
 
 use crate::{
     graphemes::next_grapheme_boundary,
-    match_brackets::{find_matching_bracket, find_matching_bracket_fuzzy},
+    match_brackets::{
+        find_matching_bracket, find_matching_bracket_fuzzy, get_pair, is_close_pair, is_open_pair,
+    },
     movement::Direction,
     search, Range, Selection, Syntax,
 };
 use ropey::RopeSlice;
-
-pub const PAIRS: &[(char, char)] = &[
-    ('(', ')'),
-    ('[', ']'),
-    ('{', '}'),
-    ('<', '>'),
-    ('«', '»'),
-    ('「', '」'),
-    ('（', '）'),
-];
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
@@ -39,27 +31,11 @@ impl Display for Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
-/// Given any char in [PAIRS], return the open and closing chars. If not found in
-/// [PAIRS] return (ch, ch).
+/// Find the position of surround pairs of any [`crate::match_brackets::PAIRS`] using tree-sitter when possible.
 ///
-/// ```
-/// use helix_core::surround::get_pair;
+/// # Returns
 ///
-/// assert_eq!(get_pair('['), ('[', ']'));
-/// assert_eq!(get_pair('}'), ('{', '}'));
-/// assert_eq!(get_pair('"'), ('"', '"'));
-/// ```
-pub fn get_pair(ch: char) -> (char, char) {
-    PAIRS
-        .iter()
-        .find(|(open, close)| *open == ch || *close == ch)
-        .copied()
-        .unwrap_or((ch, ch))
-}
-
-/// Find the position of surround pairs of any [`PAIRS`] using tree-sitter when possible.
-///
-/// Returns a tuple `(anchor, head)`, meaning it is not always ordered.
+/// Tuple `(anchor, head)`, meaning it is not always ordered.
 pub fn find_nth_closest_pairs_pos(
     syntax: Option<&Syntax>,
     text: RopeSlice,
@@ -78,8 +54,6 @@ fn find_nth_closest_pairs_ts(
     range: Range,
     skip: usize,
 ) -> Result<(usize, usize)> {
-    let is_close_pair = |ch| PAIRS.iter().any(|(_, close)| *close == ch);
-
     let cursor = range.cursor(text);
     let Some(mut closing) = find_matching_bracket_fuzzy(syntax, text, cursor) else {
         return Err(Error::PairNotFound);
@@ -113,9 +87,6 @@ fn find_nth_closest_pairs_plain(
     range: Range,
     mut skip: usize,
 ) -> Result<(usize, usize)> {
-    let is_open_pair = |ch| PAIRS.iter().any(|(open, _)| *open == ch);
-    let is_close_pair = |ch| PAIRS.iter().any(|(_, close)| *close == ch);
-
     let mut stack = Vec::with_capacity(2);
     let pos = range.from();
     let mut close_pos = pos.saturating_sub(1);
