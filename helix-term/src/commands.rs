@@ -12,7 +12,8 @@ pub use typed::*;
 use helix_core::{
     char_idx_at_visual_offset, comment,
     doc_formatter::TextFormat,
-    encoding, find_first_non_whitespace_char, find_workspace, graphemes,
+    encoding, find_first_non_whitespace_char, find_workspace,
+    graphemes::{self},
     history::UndoKind,
     increment, indent,
     indent::IndentStyle,
@@ -1624,6 +1625,83 @@ fn switch_to_lowercase(cx: &mut Context) {
     switch_case_impl(cx, |string| {
         string.chunks().map(|chunk| chunk.to_lowercase()).collect()
     });
+}
+
+pub fn scroll_horizontal(cx: &mut Context, offset: usize, direction: Direction) {
+    use Direction::*;
+    let config = cx.editor.config();
+    let (view, doc) = current!(cx.editor);
+
+    let range = doc.selection(view.id).primary();
+    let text = doc.text().slice(..);
+
+    let cursor = range.cursor(text);
+    let height = view.inner_height();
+
+    let scrolloff = config.scrolloff.min(height.saturating_sub(1) / 2);
+    let offset = match direction {
+        Forward => view.offset.horizontal_offset.saturating_add(offset),
+        Backward => view.offset.horizontal_offset.saturating_sub(offset),
+    };
+
+    let doc_text = doc.text().slice(..);
+    let viewport = view.inner_area(doc);
+    let text_fmt = doc.text_format(viewport.width, None);
+    let annotations = view.text_annotations(doc, None);
+    (view.offset.anchor, view.offset.horizontal_offset) = char_idx_at_visual_offset(
+        doc_text,
+        view.offset.anchor,
+        0,
+        offset,
+        &text_fmt,
+        &annotations,
+    );
+
+    let mut head;
+    match direction {
+        Forward => {
+            let off;
+            (head, off) = char_idx_at_visual_offset(
+                doc_text,
+                view.offset.anchor,
+                (view.offset.vertical_offset + scrolloff) as isize,
+                0,
+                &text_fmt,
+                &annotations,
+            );
+            head += (off != 0) as usize;
+            if head <= cursor {
+                return;
+            }
+        }
+        Backward => {
+            head = char_idx_at_visual_offset(
+                doc_text,
+                view.offset.anchor,
+                (view.offset.vertical_offset + height - scrolloff - 1) as isize,
+                0,
+                &text_fmt,
+                &annotations,
+            )
+            .0;
+            if head >= cursor {
+                return;
+            }
+        }
+    }
+
+    let anchor = if cx.editor.mode == Mode::Select {
+        range.anchor
+    } else {
+        head
+    };
+
+    // replace primary selection with an empty selection at cursor pos
+    let prim_sel = Range::new(anchor, head);
+    let mut sel = doc.selection(view.id).clone();
+    let idx = sel.primary_index();
+    sel = sel.replace(idx, prim_sel);
+    doc.set_selection(view.id, sel);
 }
 
 pub fn scroll(cx: &mut Context, offset: usize, direction: Direction) {
