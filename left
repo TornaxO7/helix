@@ -29,8 +29,8 @@ use helix_core::{
     textobject,
     tree_sitter::Node,
     unicode::width::UnicodeWidthChar,
-    visual_offset_from_anchor, visual_offset_from_block, Deletion, LineEnding, Position, Range,
-    Rope, RopeGraphemes, RopeReader, RopeSlice, Selection, SmallVec, Tendril, Transaction,
+    visual_offset_from_block, Deletion, LineEnding, Position, Range, Rope, RopeGraphemes,
+    RopeReader, RopeSlice, Selection, SmallVec, Tendril, Transaction,
 };
 use helix_view::{
     document::{FormatterError, Mode, SCRATCH_BUFFER_NAME},
@@ -1632,57 +1632,18 @@ pub fn scroll_horizontal(cx: &mut Context, _offset: usize, direction: Direction)
     let text = doc.text();
 
     let cursor = {
-        let cursor = doc.selection(view.id).primary().cursor(text.slice(..));
-        let viewport = view.inner_area(doc);
-        let text_fmt = doc.text_format(viewport.width, None);
-        let annotations = view.text_annotations(doc, None);
-        let vertical_viewport_end = view.offset.vertical_offset + viewport.height as usize;
-
-        visual_offset_from_anchor(
-            text.slice(..),
-            view.offset.anchor,
-            cursor,
-            &text_fmt,
-            &annotations,
-            vertical_viewport_end,
-        )
-        .unwrap_or(visual_offset_from_block(
-            text.slice(..),
-            view.offset.anchor,
-            cursor,
-            &text_fmt,
-            &annotations,
-        ))
-        .0
+        let primary = doc.selection(view.id).primary();
+        primary.cursor(text.slice(..))
     };
 
-    let offset = view.inner_width(doc) as usize;
-    let head = match direction {
-        Direction::Forward => {
-            let head = cursor.col.saturating_add(offset);
-            let line_end = text.line(cursor.row).len_chars();
+    let offset = (view.inner_width(&doc) / 3) as usize;
 
-            if head > text.line(cursor.row).len_chars() {
-                line_end - 1
-            } else {
-                head
-            }
-        }
-        Direction::Backward => cursor.col.saturating_sub(offset),
+    log::debug!("before: {}", view.offset.anchor);
+    view.offset.anchor = match direction {
+        Direction::Forward => cursor.saturating_add(offset),
+        Direction::Backward => cursor.saturating_sub(offset),
     };
-
-    let anchor = if cx.editor.mode == Mode::Select {
-        view.offset.anchor
-    } else {
-        head
-    };
-
-    let prim_sel = Range::new(anchor, head);
-
-    let mut sel = doc.selection(view.id).clone();
-    let idx = sel.primary_index();
-    sel = sel.replace(idx, prim_sel);
-    doc.set_selection(view.id, sel);
+    log::debug!("after: {}", view.offset.anchor);
 }
 
 pub fn scroll(cx: &mut Context, offset: usize, direction: Direction) {

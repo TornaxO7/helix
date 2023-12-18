@@ -290,7 +290,7 @@ impl View {
                 offset.horizontal_offset += col - (last_col.saturating_sub(scrolloff))
             } else if col < offset.horizontal_offset + scrolloff {
                 // scroll left
-                offset.horizontal_offset = col.saturating_sub(scrolloff)
+                offset.horizontal_offset = col.saturating_sub(scrolloff);
             };
         }
 
