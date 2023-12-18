@@ -1631,7 +1631,7 @@ pub fn scroll_horizontal(cx: &mut Context, _offset: usize, direction: Direction)
     let (view, doc) = current!(cx.editor);
     let text = doc.text();
 
-    let cursor = {
+    let cursor_pos = {
         let cursor = doc.selection(view.id).primary().cursor(text.slice(..));
         let viewport = view.inner_area(doc);
         let text_fmt = doc.text_format(viewport.width, None);
@@ -1657,19 +1657,27 @@ pub fn scroll_horizontal(cx: &mut Context, _offset: usize, direction: Direction)
     };
 
     let offset = view.inner_width(doc) as usize;
-    let head = match direction {
+    let new_cursor_pos = match direction {
         Direction::Forward => {
-            let head = cursor.col.saturating_add(offset);
-            let line_end = text.line(cursor.row).len_chars();
+            let head = cursor_pos.col.saturating_add(offset);
+            let line_end = text.line(cursor_pos.row).len_chars();
 
-            if head > text.line(cursor.row).len_chars() {
-                line_end - 1
+            let col = if head > text.line(cursor_pos.row).len_chars() {
+                line_end.saturating_sub(1)
             } else {
                 head
-            }
+            };
+
+            Position::new(cursor_pos.row, col)
         }
-        Direction::Backward => cursor.col.saturating_sub(offset),
+        Direction::Backward => {
+            let col = cursor_pos.col.saturating_sub(offset);
+
+            Position::new(cursor_pos.row, col)
+        }
     };
+
+    let head = pos_at_coords(text.slice(..), new_cursor_pos, false);
 
     let anchor = if cx.editor.mode == Mode::Select {
         view.offset.anchor
