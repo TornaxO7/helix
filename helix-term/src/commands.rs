@@ -1678,9 +1678,9 @@ pub fn scroll_horizontal(cx: &mut Context, _offset: usize, direction: Direction)
     };
 
     let head = pos_at_coords(text.slice(..), new_cursor_pos, false);
-
+    let range = doc.selection(view.id).primary();
     let anchor = if cx.editor.mode == Mode::Select {
-        view.offset.anchor
+        range.anchor
     } else {
         head
     };
