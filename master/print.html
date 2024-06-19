@@ -541,8 +541,8 @@ function or block of code.</p>
 </div>
 <blockquote>
 <p>💡 <code>f</code>, <code>t</code>, etc. need a tree-sitter grammar active for the current
-document and a special tree-sitter query file to work properly. [Only
-some grammars][lang-support] currently have the query file implemented.
+document and a special tree-sitter query file to work properly. <a href="./lang-support.html">Only
+some grammars</a> currently have the query file implemented.
 Contributions are welcome!</p>
 </blockquote>
 <h2 id="navigating-using-tree-sitter-textobjects"><a class="header" href="#navigating-using-tree-sitter-textobjects">Navigating using tree-sitter textobjects</a></h2>
@@ -550,8 +550,8 @@ Contributions are welcome!</p>
 possible using tree-sitter and textobject queries. For
 example to move to the next function use <code>]f</code>, to move to previous
 type use <code>[t</code>, and so on.</p>
-<p>![Tree-sitter-nav-demo][tree-sitter-nav-demo]</p>
-<p>For the full reference see the [unimpaired][unimpaired-keybinds] section of the key bind
+<p><img src="https://user-images.githubusercontent.com/23398472/152332550-7dfff043-36a2-4aec-b8f2-77c13eb56d6f.gif" alt="Tree-sitter-nav-demo" /></p>
+<p>For the full reference see the <a href="./keymap.html#unimpaired">unimpaired</a> section of the key bind
 documentation.</p>
 <blockquote>
 <p>💡 This feature relies on tree-sitter textobjects
@@ -647,7 +647,7 @@ selection to the "func" <code>identifier</code>.</p>
 <p>💡 Mappings marked (<strong>TS</strong>) require a tree-sitter grammar for the file type.</p>
 </blockquote>
 <blockquote>
-<p>⚠️ Some terminals' default key mappings conflict with Helix's. If any of the mappings described on this page do not work as expected, check your terminal's mappings to ensure they do not conflict. See the (wiki)[https://github.com/helix-editor/helix/wiki/Terminal-Support] for known conflicts.</p>
+<p>⚠️ Some terminals' default key mappings conflict with Helix's. If any of the mappings described on this page do not work as expected, check your terminal's mappings to ensure they do not conflict. See the <a href="https://github.com/helix-editor/helix/wiki/Terminal-Support">wiki</a> for known conflicts.</p>
 </blockquote>
 <h2 id="normal-mode"><a class="header" href="#normal-mode">Normal mode</a></h2>
 <p>Normal mode is the default mode when you launch helix. You can return to it from other modes by pressing the <code>Escape</code> key.</p>
@@ -835,8 +835,7 @@ useful when you're simply looking over text and not actively editing it.</p>
 </div>
 <h4 id="match-mode"><a class="header" href="#match-mode">Match mode</a></h4>
 <p>Accessed by typing <code>m</code> in <a href="keymap.html#normal-mode">normal mode</a>.</p>
-<p>See the relevant section in <a href="./usage.html">Usage</a> for an explanation about
-<a href="./usage.html#surround">surround</a> and <a href="./usage.html#navigating-using-tree-sitter-textobjects">textobject</a> usage.</p>
+<p>Please refer to the relevant sections for detailed explanations about <a href="./surround.html">surround</a> and <a href="./textobjects.html">textobjects</a>.</p>
 <div class="table-wrapper"><table><thead><tr><th>Key</th><th>Description</th><th>Command</th></tr></thead><tbody>
 <tr><td><code>m</code></td><td>Goto matching bracket (<strong>TS</strong>)</td><td><code>match_brackets</code></td></tr>
 <tr><td><code>s</code> <code>&lt;char&gt;</code></td><td>Surround current selection with <code>&lt;char&gt;</code></td><td><code>surround_add</code></td></tr>
@@ -1194,6 +1193,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>edoc</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>eex</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>ejs</td><td>✓</td><td></td><td></td><td></td></tr>
+<tr><td>elisp</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>elixir</td><td>✓</td><td>✓</td><td>✓</td><td><code>elixir-ls</code></td></tr>
 <tr><td>elm</td><td>✓</td><td>✓</td><td></td><td><code>elm-language-server</code></td></tr>
 <tr><td>elvish</td><td>✓</td><td></td><td></td><td><code>elvish</code></td></tr>
@@ -1341,7 +1341,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>supercollider</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>svelte</td><td>✓</td><td></td><td>✓</td><td><code>svelteserver</code></td></tr>
 <tr><td>sway</td><td>✓</td><td>✓</td><td>✓</td><td><code>forc</code></td></tr>
-<tr><td>swift</td><td>✓</td><td></td><td></td><td><code>sourcekit-lsp</code></td></tr>
+<tr><td>swift</td><td>✓</td><td>✓</td><td></td><td><code>sourcekit-lsp</code></td></tr>
 <tr><td>t32</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>tablegen</td><td>✓</td><td>✓</td><td>✓</td><td></td></tr>
 <tr><td>tact</td><td>✓</td><td>✓</td><td>✓</td><td></td></tr>
@@ -1454,7 +1454,6 @@ Its settings will be merged with the configuration directory <code>config.toml</
 <tr><td><code>gutters</code></td><td>Gutters to display: Available are <code>diagnostics</code> and <code>diff</code> and <code>line-numbers</code> and <code>spacer</code>, note that <code>diagnostics</code> also includes other features like breakpoints, 1-width padding will be inserted if gutters is non-empty</td><td><code>["diagnostics", "spacer", "line-numbers", "spacer", "diff"]</code></td></tr>
 <tr><td><code>auto-completion</code></td><td>Enable automatic pop up of auto-completion</td><td><code>true</code></td></tr>
 <tr><td><code>auto-format</code></td><td>Enable automatic formatting on save</td><td><code>true</code></td></tr>
-<tr><td><code>auto-save</code></td><td>Enable automatic saving on the focus moving away from Helix. Requires <a href="https://github.com/helix-editor/helix/wiki/Terminal-Support">focus event support</a> from your terminal</td><td><code>false</code></td></tr>
 <tr><td><code>idle-timeout</code></td><td>Time in milliseconds since last keypress before idle timers trigger.</td><td><code>250</code></td></tr>
 <tr><td><code>completion-timeout</code></td><td>Time in milliseconds after typing a word character before completions are shown, set to 5 for instant.</td><td><code>250</code></td></tr>
 <tr><td><code>preview-completion-insert</code></td><td>Whether to apply completion item instantly when selected</td><td><code>true</code></td></tr>
@@ -1615,6 +1614,14 @@ name = "rust"
 '`' = '`'
 '&lt;' = '&gt;'
 </code></pre>
+<h3 id="editorauto-save-section"><a class="header" href="#editorauto-save-section"><code>[editor.auto-save]</code> Section</a></h3>
+<p>Control auto save behavior.</p>
+<div class="table-wrapper"><table><thead><tr><th>Key</th><th>Description</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>focus-lost</code></td><td>Enable automatic saving on the focus moving away from Helix. Requires <a href="https://github.com/helix-editor/helix/wiki/Terminal-Support">focus event support</a> from your terminal</td><td><code>false</code></td></tr>
+<tr><td><code>after-delay.enable</code></td><td>Enable automatic saving after <code>auto-save.after-delay.timeout</code> milliseconds have passed since last edit.</td><td><code>false</code></td></tr>
+<tr><td><code>after-delay.timeout</code></td><td>Time in milliseconds since last edit before auto save timer triggers.</td><td><code>3000</code></td></tr>
+</tbody></table>
+</div>
 <h3 id="editorsearch-section"><a class="header" href="#editorsearch-section"><code>[editor.search]</code> Section</a></h3>
 <p>Search specific options.</p>
 <div class="table-wrapper"><table><thead><tr><th>Key</th><th>Description</th><th>Default</th></tr></thead><tbody>
